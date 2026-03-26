@@ -16,13 +16,15 @@ jobs:
       - name: Instalar Dependências e Rodar Testes
         uses: cypress-io/github-action@v6
         with:
-          # Isso instala o npm e roda o 'cypress run' automaticamente
           browser: chrome
-          spec: cypress/e2e/*.cy.js
+        env:
+          # O GitHub pega o segredo 'CYPRESS_TOKEN' das Configurações 
+          # e entrega para o código como Cypress.env('TOKEN')
+          CYPRESS_TOKEN: ${{ secrets.CYPRESS_TOKEN }}
 
       - name: Upload de Relatórios (Vídeos/Screenshots)
         uses: actions/upload-artifact@v4
-        if: failure() # Só sobe os arquivos se o teste falhar
+        if: failure() # Só gera o download se o teste falhar
         with:
           name: cypress-results
           path: |
