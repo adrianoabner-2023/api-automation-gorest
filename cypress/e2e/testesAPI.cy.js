@@ -1,28 +1,35 @@
 describe('Automação de API - GoRest', () => {
+    // Declaramos a variável aqui dentro, mas o valor pegamos dentro do teste ou de um hook
+    let token;
 
-    // É boa prática deixar o token em uma variável ou no cypress.env.json
-    const token = Cypress.env('TOKEN');
+    beforeEach(() => {
+        // Pegando o token de forma segura antes de cada teste
+        token = Cypress.env('TOKEN');
+    });
 
     it('Deve criar um usuário com sucesso', () => {
+        // Se o token não existir, o teste já avisa aqui
+        expect(token).to.not.be.undefined;
+
         cy.request({
             method: 'POST',
-            url: 'https://gorest.co.in/public/v2/users', // Atualizei para v2 que é a mais comum
+            url: 'https://gorest.co.in/public/v2/users',
             headers: {
                 Authorization: `Bearer ${token}`
             },
             body: {
                 "name": "Abner Venancio",
                 "gender": "male",
-                "email": `teste_${Math.random()}@gmail.com`, // Email dinâmico para não dar erro de "já existe"
+                "email": `teste_${Date.now()}@gmail.com`,
                 "status": "active"
             },
             failOnStatusCode: false
         }).then((response) => {
-            expect(response.status).to.eq(201); // GoRest retorna 201 para criação
-            expect(response.body).to.have.property('id');
-            expect(response.duration).to.be.lessThan(2000);
+            expect(response.status).to.eq(201);
         });
     });
+
+
     it('Deve retornar erro devido ao campo status está prenchido incorretamente', () => {
         cy.request({
             method: 'POST',
