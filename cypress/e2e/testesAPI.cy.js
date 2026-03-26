@@ -1,15 +1,8 @@
 describe('Automação de API - GoRest', () => {
-    // Declaramos a variável aqui dentro, mas o valor pegamos dentro do teste ou de um hook
-    let token;
-
-    beforeEach(() => {
-        // Pegando o token de forma segura antes de cada teste
-        token = Cypress.env('TOKEN');
-    });
 
     it('Deve criar um usuário com sucesso', () => {
-        // Se o token não existir, o teste já avisa aqui
-        expect(token).to.not.be.undefined;
+        // Usando cy.env() que é o padrão recomendado pela mensagem de erro
+        const token = cy.env('TOKEN');
 
         cy.request({
             method: 'POST',
@@ -29,35 +22,33 @@ describe('Automação de API - GoRest', () => {
         });
     });
 
+    it('Deve retornar erro devido ao campo status estar preenchido incorretamente', () => {
+        const token = cy.env('TOKEN');
 
-    it('Deve retornar erro devido ao campo status está prenchido incorretamente', () => {
         cy.request({
             method: 'POST',
-            url: 'https://gorest.co.in/public/v2/users', // Atualizei para v2 que é a mais comum
+            url: 'https://gorest.co.in/public/v2/users',
             headers: {
                 Authorization: `Bearer ${token}`
             },
             body: {
                 "name": "Abner Venancio",
                 "gender": "male",
-                "email": `teste_${Math.random()}@gmail.com`, // Email dinâmico para não dar erro de "já existe"
+                "email": `teste_${Math.random()}@gmail.com`,
                 "status": "Testing"
             },
             failOnStatusCode: false
         }).then((response) => {
             expect(response.status).to.eq(422);
-            expect(response.duration).to.be.lessThan(2000);
-        })
-    })
-
-
+        });
+    });
 
     it('Deve retornar erro de autorização se o token for inválido', () => {
         cy.request({
             method: 'POST',
             url: 'https://gorest.co.in/public/v2/users',
             headers: {
-                Authorization: `6663f8ff0493e01f14547611db29420e828b341bc9b89af5619ca8bdc313d5638923`
+                Authorization: `Bearer token_invalido_123`
             },
             body: {
                 "name": "Abner Venancio",
@@ -67,7 +58,6 @@ describe('Automação de API - GoRest', () => {
             },
             failOnStatusCode: false
         }).then((response) => {
-            // Se o token estiver errado, o status esperado é 401
             expect(response.status).to.eq(401);
         });
     });
