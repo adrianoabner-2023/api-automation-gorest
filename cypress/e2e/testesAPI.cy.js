@@ -1,7 +1,7 @@
 describe('Automação de API - GoRest', () => {
 
     // É boa prática deixar o token em uma variável ou no cypress.env.json
-    const token = '4c9305e6befaf03cdec48e53dcfff2a830340d53edd4374fc9d9218a7099431b';
+    const token = Cypress.env('TOKEN');
 
     it('Deve criar um usuário com sucesso', () => {
         cy.request({

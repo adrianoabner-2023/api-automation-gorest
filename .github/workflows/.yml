@@ -1,0 +1,30 @@
+name: Cypress API Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Dependências e Rodar Testes
+        uses: cypress-io/github-action@v6
+        with:
+          # Isso instala o npm e roda o 'cypress run' automaticamente
+          browser: chrome
+          spec: cypress/e2e/*.cy.js
+
+      - name: Upload de Relatórios (Vídeos/Screenshots)
+        uses: actions/upload-artifact@v4
+        if: failure() # Só sobe os arquivos se o teste falhar
+        with:
+          name: cypress-results
+          path: |
+            cypress/screenshots
+            cypress/videos
